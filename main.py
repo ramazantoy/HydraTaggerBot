@@ -87,6 +87,8 @@ async def getChatMembers(chatID):
 
 if __name__ == "__main__":
 
+    ##auto-py-to-exe
+    print("Hydra Tagger v1.0")
     application = ApplicationBuilder().token(Token).build()
     
     start_handler = CommandHandler('utag', start)
