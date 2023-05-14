@@ -1,0 +1,4 @@
+telegram
+telethon
+numpy
+python-telegram-bot
