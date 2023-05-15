@@ -4,7 +4,7 @@ from TelegramGroup import TelegramGroup
 class TelegramGroupManager:
     _instance = None
 
-    def __new__(cls):
+    def __new__(cls) -> object:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.groups = []
@@ -26,7 +26,8 @@ class TelegramGroupManager:
 
     def get_group(self, chat_id):
         for group in self.groups:
-            if chat_id in group.chat_id:
+            if chat_id == group.chat_id:
+                print("grup var")
                 return group
+        print("grup yok")
         return None
-
