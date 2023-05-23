@@ -8,6 +8,8 @@ from TelegramClientManager import TelegramClientManager
 class TelegramGroup:
 
 
+
+
     def __init__(self, chat_id):
         self.chat_id = chat_id
 
@@ -60,7 +62,8 @@ class TelegramGroup:
                             message += f"<a href='tg://user?id={_member[0]}'>{_member[1]}</a>, "
                         await context.bot.send_message(chat_id=update.effective_chat.id, text=message,
                                                        parse_mode="HTML")
-                       #time.sleep(3.5)
+                        time.sleep(.25)
+                        time.sleep(3.5)
                 else:
                     messageText = ""
                     for _member in members:

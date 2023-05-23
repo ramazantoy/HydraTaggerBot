@@ -21,9 +21,10 @@ async def startHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def utagHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-
+        await update_handler(update, context)
         chatID = update.effective_chat.id
 
+        print(update.message.text)
         if (update.message.chat.type == "private"):
             await context.bot.send_message(chatID, text="Beni grubunuza yönetici olarak ekleyip kullanabilirsiniz.",
                                            parse_mode="HTML", reply_to_message_id=update.message.id)
