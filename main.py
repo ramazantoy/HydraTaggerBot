@@ -12,7 +12,7 @@ logging.basicConfig(
 
 accountID =12444421 
 accountHash = '7afd603f843d2b40fa8617622e6a9d77'
-Token = "5890782941:AAEgr72Cv1cbQrcwAh3Bl24rIiRnSSOWQk0"
+Token = "5980882300:AAF2qkcI_rYJIEXGRYmgmgy6FcYtRU38TZ8"
 
 
 async def startHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
