@@ -12,7 +12,7 @@ logging.basicConfig(
 
 accountID =12444421 
 accountHash = '7afd603f843d2b40fa8617622e6a9d77'
-Token = "5980882300:AAF2qkcI_rYJIEXGRYmgmgy6FcYtRU38TZ8"
+Token = "5885881521:AAGceWhhx3ahIf6na8U4YCpNJyunslb--i0"
 
 
 async def startHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -81,14 +81,16 @@ async def utagHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
                     await context.bot.send_message(chat_id=update.effective_chat.id, text=messageText,
                                                    parse_mode="HTML")
-                    finalMessage = f"✅ <b>Etiketleme işlemi tamamlandı.</b>\n\n👥 Etiketlenen Kullanıcı sayısı : {len(members)}\n🗣 Etiket işlemini başlatan : {userMention}"
-                    await context.bot.send_message(chatID, text=finalMessage, parse_mode="HTML",
-                                                   reply_to_message_id=update.message.id)
+
 
 
                 else:
                     await context.bot.send_message(chatID, text=args_warning, parse_mode="HTML",
                                                    reply_to_message_id=update.message.id)
+
+            finalMessage = f"✅ <b>Etiketleme işlemi tamamlandı.</b>\n\n👥 Etiketlenen Kullanıcı sayısı : {len(members)}\n🗣 Etiket işlemini başlatan : {userMention}"
+            await context.bot.send_message(chatID, text=finalMessage, parse_mode="HTML",
+                                           reply_to_message_id=update.message.id)
 
 
 
@@ -111,7 +113,6 @@ async def getChatMembers(chatID):
 if __name__ == "__main__":
 
     ##auto-py-to-exe
-    print("Hydra Tagger v1.0")
     application = ApplicationBuilder().token(Token).build()
     utag_handler = CommandHandler('utag', utagHandler)
     start_handler=CommandHandler('start',startHandler)
