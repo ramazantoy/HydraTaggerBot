@@ -2,18 +2,25 @@ import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from telethon import TelegramClient
-import numpy as np
 import asyncio
 from typing import Dict
+import re
+
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.WARNING
 )
 
+logger = logging.getLogger(__name__)
+
 
 
 tagging_status: Dict[int, asyncio.Task] = {}
+chunk_size = 5
+
+def clean_html(text):
+    return re.sub(r'<[^>]+>', '', text)
 
 async def startHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chatID = update.effective_chat.id
@@ -32,8 +39,7 @@ async def utagHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     userName = update.effective_user.first_name
     userID = update.effective_user.id
     command_text = update.message.text.strip().split(maxsplit=1)
-    command = command_text[0] if command_text else ""
-    args = command_text[1].split() if len(command_text) > 1 else []
+    args = command_text[1] if len(command_text) > 1 else ""
 
     admin_warning = "Sadece yöneticiler tarafından kullanılabilir."
     args_warning = "<b>Beni</b> kullanmak için bir mesaj yazmalısın."
@@ -65,44 +71,49 @@ async def utagHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tagging_status[chatID] = tagging_task
 
 async def perform_tagging(update, context, chatID, userID, userName, args):
-    async with TelegramClient('session_name', accountID, accountHash) as Client:
-        members = []
-        async for user in Client.iter_participants(chatID):
-            if not user.bot:
-                members.append([user.id, user.first_name])
+    try:
+        async with TelegramClient(f'session_{chatID}', accountID, accountHash,
+                                  device_model="Telegram Bot", system_version="1.0",
+                                  app_version="1.0", lang_code="en") as Client:
+            await Client.start()
+            entity = await Client.get_entity(chatID)
+            members = []
+            async for user in Client.iter_participants(entity):
+                if not user.bot and user.id != userID:
+                    members.append([user.id, user.first_name or "None"])
 
-    text = ' '.join(args)
-    text = f"<b>{text}</b>\n"
-    header = f"\n{text}"
+        if not members:
+            await context.bot.send_message(chatID, "Etiketlenecek üye bulunamadı.", parse_mode="HTML")
+            return
 
-    if len(members) > 10:
-        arr = np.array(members)
-        subarrays = np.array_split(arr, len(arr) // 5)
-        for _members in subarrays:
+        text = clean_html(f"<b>{args}</b>\n")
+        header = f"\n{text}"
+
+        total_members = len(members)
+        for i in range(0, total_members, chunk_size):
             if chatID not in tagging_status or tagging_status[chatID].done():
                 break
+            chunk = members[i:i + chunk_size]
             message = f"{header}"
-            for _member in _members:
-                message += f"<a href='tg://user?id={_member[0]}'>{_member[1]}</a>, "
-            await context.bot.send_message(chat_id=chatID, text=message, parse_mode="HTML")
-            await asyncio.sleep(2)
-    else:
-        if chatID in tagging_status and not tagging_status[chatID].done():
-            messageText = header
-            for _member in members:
-                messageText += f"<a href='tg://user?id={_member[0]}'>{_member[1]}</a>, "
-            await context.bot.send_message(chat_id=chatID, text=messageText, parse_mode="HTML")
+            for member in chunk:
+                message += f"<a href='tg://user?id={member[0]}'>{member[1]}</a>, "
+            try:
+                await context.bot.send_message(chat_id=chatID, text=message, parse_mode="HTML")
+            except Exception as e:
+                logger.error(f"Error sending message: {e}")
 
-    userMention = f"<a href='tg://user?id={userID}'>{userName}</a>"
-    if chatID in tagging_status and not tagging_status[chatID].done():
+            await asyncio.sleep(2)  # Hız sınırlamasını aşmamak için 2 saniye bekleme
+
+        userMention = f"<a href='tg://user?id={userID}'>{userName}</a>"
         finalMessage = f"✅ <b>Etiketleme işlemi tamamlandı.</b>\n\n👥 Etiketlenen Kullanıcı sayısı : {len(members)}\n🗣 Etiket işlemini başlatan : {userMention}"
-    else:
-        finalMessage = f"❌ <b>Etiketleme işlemi iptal edildi.</b>\n\n🗣 Etiket işlemini başlatan : {userMention}"
 
-    await context.bot.send_message(chatID, text=finalMessage, parse_mode="HTML")
-    if chatID in tagging_status:
-        del tagging_status[chatID]
-
+        await context.bot.send_message(chatID, text=finalMessage, parse_mode="HTML")
+    except Exception as e:
+        logger.error(f"Error in perform_tagging: {e}")
+        await context.bot.send_message(chatID, text=f"Etiketleme işlemi sırasında bir hata oluştu: {str(e)}\nLütfen botun yönetici olduğundan ve gerekli izinlere sahip olduğundan emin olun.", parse_mode="HTML")
+    finally:
+        if chatID in tagging_status:
+            del tagging_status[chatID]
 
 async def cancelHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chatID = update.effective_chat.id
@@ -112,12 +123,11 @@ async def cancelHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if chatID in tagging_status and not tagging_status[chatID].done():
                 tagging_status[chatID].cancel()
 
-
                 canceller_id = update.effective_user.id
                 canceller_name = update.effective_user.first_name
                 canceller_mention = f"<a href='tg://user?id={canceller_id}'>{canceller_name}</a>"
 
-                cancel_message =  f"❌ <b>Etiketleme işlemi  {canceller_mention} tarafından iptal edildi.</b>"
+                cancel_message = f"❌ <b>Etiketleme işlemi {canceller_mention} tarafından iptal edildi.</b>"
                 await context.bot.send_message(chatID, text=cancel_message, parse_mode="HTML",
                                                reply_to_message_id=update.message.message_id)
             else:
