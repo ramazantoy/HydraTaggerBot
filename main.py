@@ -5,6 +5,7 @@ from telethon import TelegramClient
 import asyncio
 from typing import Dict
 import re
+import configparser
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -13,9 +14,12 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-accountID =''
-accountHash =''
-Token = ''
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+accountID = config.getint('Credentials', 'accountID')
+accountHash = config.get('Credentials', 'accountHash')
+Token = config.get('Credentials', 'Token')
 
 tagging_status: Dict[int, asyncio.Task] = {}
 chunk_size = 5
@@ -110,7 +114,7 @@ async def perform_tagging(update, context, chatID, userID, userName, args):
             except Exception as e:
                 logger.error(f"Error sending message: {e}")
 
-            await asyncio.sleep(2)  
+            await asyncio.sleep(2)
 
         userMention = f"<a href='tg://user?id={userID}'>{userName}</a>"
         finalMessage = f"✅ <b>Etiketleme işlemi tamamlandı.</b>\n\n👥 Etiketlenen Kullanıcı sayısı : {len(members)}\n🗣 Etiket işlemini başlatan : {userMention}"
