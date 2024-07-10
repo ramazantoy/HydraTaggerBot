@@ -6,7 +6,6 @@ import asyncio
 from typing import Dict
 import re
 
-
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.WARNING
@@ -14,19 +13,28 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-
+accountID =''
+accountHash =''
+Token = ''
 
 tagging_status: Dict[int, asyncio.Task] = {}
 chunk_size = 5
 
+client = TelegramClient('session', accountID, accountHash,
+                        device_model="Telegram Bot", system_version="1.0",
+                        app_version="1.0", lang_code="en")
+
+
 def clean_html(text):
     return re.sub(r'<[^>]+>', '', text)
+
 
 async def startHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chatID = update.effective_chat.id
     if update.message.chat.type == "private":
         await context.bot.send_message(chatID, text="Beni grubunuza yönetici olarak ekleyip kullanabilirsiniz.",
                                        parse_mode="HTML", reply_to_message_id=update.message.message_id)
+
 
 async def utagHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chatID = update.effective_chat.id
@@ -70,17 +78,17 @@ async def utagHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tagging_task = asyncio.create_task(perform_tagging(update, context, chatID, userID, userName, args))
     tagging_status[chatID] = tagging_task
 
+
 async def perform_tagging(update, context, chatID, userID, userName, args):
     try:
-        async with TelegramClient(f'session_{chatID}', accountID, accountHash,
-                                  device_model="Telegram Bot", system_version="1.0",
-                                  app_version="1.0", lang_code="en") as Client:
-            await Client.start()
-            entity = await Client.get_entity(chatID)
-            members = []
-            async for user in Client.iter_participants(entity):
-                if not user.bot and user.id != userID:
-                    members.append([user.id, user.first_name or "None"])
+        if not client.is_connected():
+            await client.start()
+
+        entity = await client.get_entity(chatID)
+        members = []
+        async for user in client.iter_participants(entity):
+            if not user.bot and user.id != userID:
+                members.append([user.id, user.first_name or "None"])
 
         if not members:
             await context.bot.send_message(chatID, "Etiketlenecek üye bulunamadı.", parse_mode="HTML")
@@ -102,7 +110,7 @@ async def perform_tagging(update, context, chatID, userID, userName, args):
             except Exception as e:
                 logger.error(f"Error sending message: {e}")
 
-            await asyncio.sleep(2)  # Hız sınırlamasını aşmamak için 2 saniye bekleme
+            await asyncio.sleep(2)  
 
         userMention = f"<a href='tg://user?id={userID}'>{userName}</a>"
         finalMessage = f"✅ <b>Etiketleme işlemi tamamlandı.</b>\n\n👥 Etiketlenen Kullanıcı sayısı : {len(members)}\n🗣 Etiket işlemini başlatan : {userMention}"
@@ -110,10 +118,13 @@ async def perform_tagging(update, context, chatID, userID, userName, args):
         await context.bot.send_message(chatID, text=finalMessage, parse_mode="HTML")
     except Exception as e:
         logger.error(f"Error in perform_tagging: {e}")
-        await context.bot.send_message(chatID, text=f"Etiketleme işlemi sırasında bir hata oluştu: {str(e)}\nLütfen botun yönetici olduğundan ve gerekli izinlere sahip olduğundan emin olun.", parse_mode="HTML")
+        await context.bot.send_message(chatID,
+                                       text=f"Etiketleme işlemi sırasında bir hata oluştu: {str(e)}\nLütfen botun yönetici olduğundan ve gerekli izinlere sahip olduğundan emin olun.",
+                                       parse_mode="HTML")
     finally:
         if chatID in tagging_status:
             del tagging_status[chatID]
+
 
 async def cancelHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chatID = update.effective_chat.id
@@ -140,6 +151,7 @@ async def cancelHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chatID, text="Bu komut sadece gruplarda kullanılabilir.", parse_mode="HTML",
                                        reply_to_message_id=update.message.message_id)
 
+
 if __name__ == "__main__":
     print("@hydratagger")
     application = ApplicationBuilder().token(Token).build()
@@ -149,4 +161,7 @@ if __name__ == "__main__":
     application.add_handler(utag_handler)
     application.add_handler(start_handler)
     application.add_handler(cancel_handler)
+
+    client.start()
+
     application.run_polling()
