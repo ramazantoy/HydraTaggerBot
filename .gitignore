@@ -1,2 +1,24 @@
 
+*.session
+*.session-journal
+
+
+__pycache__/
+*.py[cod]
+
+
+venv/
+env/
+
+logs/
+*.log
+
 config.ini
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+.DS_Store
+Thumbs.db
