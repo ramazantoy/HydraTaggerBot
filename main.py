@@ -1,7 +1,7 @@
 import logging
-from telegram.ext import ApplicationBuilder, CommandHandler
+from telegram.ext import ApplicationBuilder, CommandHandler,CallbackQueryHandler
 from config import Token
-from handlers import startHandler, utagHandler, cancelHandler
+from handlers import startHandler,uTagHandler, cancelHandler,eTagHandler,fTagHandler,buttonHandler,helpHandler
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -16,9 +16,12 @@ def main():
     application = ApplicationBuilder().token(Token).build()
 
     application.add_handler(CommandHandler('start', startHandler))
-    application.add_handler(CommandHandler('utag', utagHandler))
+    application.add_handler(CommandHandler('utag', uTagHandler))
     application.add_handler(CommandHandler('cancel', cancelHandler))
-
+    application.add_handler(CommandHandler('etag',eTagHandler))
+    application.add_handler(CommandHandler('ftag',fTagHandler))
+    application.add_handler(CommandHandler('help',helpHandler))
+    application.add_handler(CallbackQueryHandler(buttonHandler))
     application.run_polling()
 
 

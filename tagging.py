@@ -2,6 +2,8 @@ import asyncio
 from telethon import TelegramClient
 from config import accountID, accountHash
 from utils import clean_html
+from tagtype import TagType
+from emoji import EmojiGenerator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,9 +13,10 @@ client = TelegramClient('session', accountID, accountHash,
                         app_version="1.0", lang_code="en")
 
 chunk_size = 5
+emoji = EmojiGenerator()
 
 
-async def perform_tagging(update, context, chatID, userID, userName, args):
+async def perform_tagging(update, context, chatID, userID, userName, args, tagType):
     try:
         if not client.is_connected():
             await client.start()
@@ -36,7 +39,12 @@ async def perform_tagging(update, context, chatID, userID, userName, args):
             chunk = members[i:i + chunk_size]
             message = f"{header}"
             for member in chunk:
-                message += f"<a href='tg://user?id={member[0]}'>{member[1]}</a>, "
+                if tagType == TagType.NORMAL:
+                    message += f"<a href='tg://user?id={member[0]}'>{member[1]}</a>, "
+                elif (tagType == TagType.EMOJI):
+                    message += f"<a href='tg://user?id={member[0]}'>{emoji.get_random_emoji()}</a>, "
+                else:
+                    message += f"<a href='tg://user?id={member[0]}'>{emoji.get_random_flag()}</a>, "
 
             success = False
             retries = 0
@@ -48,7 +56,7 @@ async def perform_tagging(update, context, chatID, userID, userName, args):
                     logger.error(f"Error sending message: {e}")
                     retries += 1
                     wait_time = 2 ** retries
-                    ##logger.info(f"Retrying in {wait_time} seconds...")
+
                     await asyncio.sleep(wait_time)
 
             if not success:
