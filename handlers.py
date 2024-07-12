@@ -24,8 +24,9 @@ async def utagHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     command_text = update.message.text.strip().split(maxsplit=1)
     args = command_text[1] if len(command_text) > 1 else ""
 
-    admin_warning = "Sadece yöneticiler tarafından kullanılabilir."
-    args_warning = "<b>Beni</b> kullanmak için bir mesaj yazmalısın."
+    admin_warning ="Sadece yöneticilerin kullanabileceği bir komut bu 😶\nLütfen yönetici yetkilerinizi kontrol edin. ⁉️"
+
+    args_warning = "<b>Lütfen</b> gruba iletmek istediğin bir mesaj yazarak tekrar dene! 📢"
 
     effective_user = await context.bot.get_chat_member(chatID, userID)
     if str(effective_user.status) not in ["creator", "administrator"]:
@@ -69,11 +70,13 @@ async def cancelHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_message(chatID, text=cancel_message, parse_mode="HTML",
                                                reply_to_message_id=update.message.message_id)
             else:
-                await context.bot.send_message(chatID, text="Şu anda aktif bir etiketleme işlemi yok.",
+                await context.bot.send_message(chatID, text="Üzgünüm, şu anda bir etiketleme işlemi yapmıyorum. 🤷‍♂️",
                                                parse_mode="HTML", reply_to_message_id=update.message.message_id)
         else:
-            await context.bot.send_message(chatID, text="Bu komutu sadece yöneticiler kullanabilir.", parse_mode="HTML",
+            await context.bot.send_message(chatID, text="Sadece yöneticilerin kullanabileceği bir komut bu! 😢 \n "
+                                                        "Lütfen yönetici yetkilerinizi kontrol edin.",
+                                           parse_mode="HTML",
                                            reply_to_message_id=update.message.message_id)
     else:
-        await context.bot.send_message(chatID, text="Bu komut sadece gruplarda kullanılabilir.", parse_mode="HTML",
+        await context.bot.send_message(chatID, text="Bu komut sadece gruplarda kullanılabilir. 😢", parse_mode="HTML",
                                        reply_to_message_id=update.message.message_id)
