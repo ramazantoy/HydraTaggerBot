@@ -15,7 +15,7 @@ async  def helpHandler(update: Update,context : ContextTypes.DEFAULT_TYPE):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     chatID = update.effective_chat.id
-    helpText = "Merhaba, komutlarım aşağıdaki gibididir.\n\n/utag - Normal etiketleme yapar.\n\n/etag - Emoji ile etiketleme yapar.\n\n/ftag - Bayrak ile etiketleme işlemi yapar.\n\n/cancel - Etiketleme işlemini iptal eder.\n\nBeni grubunuza yönetici olarak ekleyip kullanabilirsiniz.\n\nİyi Eğlenceler :)"
+    helpText = "Merhaba, komutlarım aşağıdaki gibididir.\n\n/utag - Normal etiketleme yapar.\n\n/etag - Emoji ile etiketleme yapar.\n\n/ftag - Bayrak ile etiketleme işlemi yapar.\n\n/cancel - Etiketleme işlemini iptal eder.\n\n/eros - Erosun okunu fırlatır.\n\n/burc Günlük burç yorumunuzu yazar.\n\nBeni grubunuza yönetici olarak ekleyip kullanabilirsiniz.\n\nİyi Eğlenceler :)"
     await context.bot.send_message(
         chatID,
         text=helpText,
@@ -76,6 +76,8 @@ Mevcut komutlar:
 /utag - Normal etiketleme yapar.
 /etag - Emoji ile etiketleme yapar.
 /ftag - Bayrak ile etiketleme işlemi yapar.
+/eros - Eros'un okunu fırlatır.
+/burc - Günlük burç yorumunuzu yazar.
 /cancel - Etiketleme işlemini iptal eder.
 
 Komutları kullanmak için gruba yönetici olarak eklenmiş olmalıyım.
