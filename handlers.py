@@ -31,7 +31,6 @@ async def horoscopeHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     command_text = update.message.text.strip().split(maxsplit=1)
     args = command_text[1] if len(command_text) > 1 else ""
-    print(args)
     return await perform_horoscoping(update, context, chatID, messageId, args)
 async def erosHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chatID = update.effective_chat.id
