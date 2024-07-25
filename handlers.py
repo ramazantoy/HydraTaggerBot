@@ -1,7 +1,9 @@
 from telegram.ext import ContextTypes
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from tagging import perform_tagging
+from erosing import perform_eros
 from tagtype import TagType
+from horoscoping import  perform_horoscoping
 import asyncio
 
 tagging_status = {}
@@ -22,6 +24,19 @@ async  def helpHandler(update: Update,context : ContextTypes.DEFAULT_TYPE):
         reply_to_message_id=update.message.message_id
     )
 
+
+async def horoscopeHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chatID = update.effective_chat.id
+    messageId = update.message.message_id
+
+    command_text = update.message.text.strip().split(maxsplit=1)
+    args = command_text[1] if len(command_text) > 1 else ""
+    print(args)
+    return await perform_horoscoping(update, context, chatID, messageId, args)
+async def erosHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chatID = update.effective_chat.id
+    userID = update.effective_user.id
+    return await perform_eros(update, context, chatID, userID)
 async def uTagHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return await tagHandler(update, context, TagType.NORMAL)
 
