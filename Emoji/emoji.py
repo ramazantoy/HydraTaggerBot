@@ -1,6 +1,5 @@
 import random
 
-
 class EmojiGenerator:
     def __init__(self):
         self.emojis = [

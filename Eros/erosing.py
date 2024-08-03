@@ -1,6 +1,6 @@
-from eros import ErosGenerator
+from Eros.eros import ErosGenerator
 import random
-from tagging import client
+from Tag.tagging import client
 import logging
 
 
@@ -25,11 +25,11 @@ async def perform_eros(update, context, chatID, userID):
         selected_members = random.sample(members, 2)
         compatibility = random.randint(0, 100)
 
-        message = "💘 Erosun oku atıldı! 🏹\n\n"
+        message = "<b>💘 Erosun oku atıldı! 🏹\n\n"
         message += f"<a href='tg://user?id={selected_members[0][0]}'>{selected_members[0][1]}</a> 💕 "
         message += f"<a href='tg://user?id={selected_members[1][0]}'>{selected_members[1][1]}</a>\n\n"
         message += f"{eros.get_random_message(compatibility)}\n\n"
-        message += f"❤️ İlişki uyumu: %{compatibility}"
+        message += f"❤️ İlişki uyumu: %{compatibility}</b>"
 
 
         try:

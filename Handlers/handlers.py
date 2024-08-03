@@ -1,12 +1,28 @@
 from telegram.ext import ContextTypes
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from tagging import perform_tagging
-from erosing import perform_eros
-from tagtype import TagType
-from horoscoping import  perform_horoscoping
+from Tag.tagging import perform_tagging
+from Eros.erosing import perform_eros
+from Tag.tagtype import TagType
+from Horoscope.horoscoping import  perform_horoscoping
+from Slap.splaping import perform_slaping
 import asyncio
 
 tagging_status = {}
+
+
+async def slapHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.reply_to_message:
+        chatID = update.effective_chat.id
+        slapperId = update.effective_user.id
+
+        slapToId = update.message.reply_to_message.from_user.id
+        if slapperId == slapToId:
+            await context.bot.send_message(chat_id=chatID, text="Kendine tokat atamazsın!")
+            return
+
+        await perform_slaping(update, context, chatID, slapperId, slapToId)
+    else:
+        return
 
 async  def helpHandler(update: Update,context : ContextTypes.DEFAULT_TYPE):
 

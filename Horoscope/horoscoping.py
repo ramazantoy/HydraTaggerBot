@@ -1,4 +1,4 @@
-from horoscope import get_horoscope
+from Horoscope.horoscope import get_horoscope
 import logging
 
 logger = logging.getLogger(__name__)

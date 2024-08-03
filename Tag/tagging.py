@@ -1,9 +1,9 @@
 import asyncio
 from telethon import TelegramClient
 from config import accountID, accountHash
-from utils import clean_html
-from tagtype import TagType
-from emoji import EmojiGenerator
+from Utils.utils import clean_html
+from Tag.tagtype import TagType
+from Emoji.emoji import EmojiGenerator
 import logging
 
 logger = logging.getLogger(__name__)
