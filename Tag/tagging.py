@@ -1,20 +1,19 @@
 import asyncio
 from telethon import TelegramClient
-from config import accountID, accountHash
+from config import accountID, accountHash, DebugId
 from Utils.utils import clean_html
 from Tag.tagtype import TagType
 from Emoji.emoji import EmojiGenerator
-import logging
 
-logger = logging.getLogger(__name__)
 
-client = TelegramClient('session', accountID, accountHash,
-                        device_model="Telegram Bot", system_version="1.0",
-                        app_version="1.0", lang_code="en")
 
+client = TelegramClient('session', accountID, accountHash, device_model="Telegram Bot", system_version="1.0", app_version="1.0", lang_code="en")
 chunk_size = 5
 emoji = EmojiGenerator()
 
+async def send_error_message(context, error):
+    error_message = f"Hata oluştu: {str(error)}"
+    await context.bot.send_message(chat_id=DebugId, text=error_message)
 
 async def perform_tagging(update, context, chatID, userID, userName, args, tagType):
     try:
@@ -33,8 +32,8 @@ async def perform_tagging(update, context, chatID, userID, userName, args, tagTy
 
         text = clean_html(f"<b>{args}</b>\n")
         header = f"\n{text}"
-
         total_members = len(members)
+
         for i in range(0, total_members, chunk_size):
             chunk = members[i:i + chunk_size]
             message = f"{header}"
@@ -56,21 +55,20 @@ async def perform_tagging(update, context, chatID, userID, userName, args, tagTy
                     logger.error(f"Error sending message: {e}")
                     retries += 1
                     wait_time = 2 ** retries
-
                     await asyncio.sleep(wait_time)
 
             if not success:
                 logger.error("Failed to send message after 3 retries")
+                await send_error_message(context, "Failed to send message after 3 retries")
 
             if i > 0:
                 await asyncio.sleep(3)
 
         userMention = f"<a href='tg://user?id={userID}'>{userName}</a>"
         finalMessage = f"✅ <b>Etiketleme işlemi tamamlandı.</b>\n\n👥 Etiketlenen Kullanıcı sayısı : {len(members)}\n🗣 Etiket işlemini başlatan : {userMention}"
-
         await context.bot.send_message(chatID, text=finalMessage, parse_mode="HTML")
+
     except Exception as e:
         logger.error(f"Error in perform_tagging: {e}")
-        await context.bot.send_message(chatID,
-                                       text=f"Etiketleme işlemi sırasında bir hata oluştu: {str(e)}\nLütfen botun yönetici olduğundan ve gerekli izinlere sahip olduğundan emin olun.",
-                                       parse_mode="HTML")
+        await context.bot.send_message(chatID, text=f"Etiketleme işlemi sırasında bir hata oluştu: {str(e)}\nLütfen botun yönetici olduğundan ve gerekli izinlere sahip olduğundan emin olun.", parse_mode="HTML")
+        await send_error_message(context, e)

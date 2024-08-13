@@ -1,10 +1,7 @@
 from Eros.eros import ErosGenerator
 import random
 from Tag.tagging import client
-import logging
 
-
-logger = logging.getLogger(__name__)
 eros=ErosGenerator()
 
 async def perform_eros(update, context, chatID, userID):
@@ -35,14 +32,12 @@ async def perform_eros(update, context, chatID, userID):
         try:
             await context.bot.send_message(chat_id=chatID, text=message, parse_mode="HTML")
         except Exception as e:
-            logger.error(f"Error sending Eros message: {e}")
             await context.bot.send_message(chatID,
                                            text="Eros mesajı gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
                                            parse_mode="HTML")
             return
 
     except Exception as e:
-        logger.error(f"Error in perform_eros: {e}")
         await context.bot.send_message(chatID,
                                        text=f"Eros işlemi sırasında bir hata oluştu: {str(e)}\nLütfen botun yönetici olduğundan ve gerekli izinlere sahip olduğundan emin olun.",
                                        parse_mode="HTML")

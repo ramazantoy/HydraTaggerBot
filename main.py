@@ -1,14 +1,7 @@
-import logging
-from telegram.ext import ApplicationBuilder, CommandHandler,CallbackQueryHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler
 from config import Token
-from Handlers.handlers import startHandler,uTagHandler, cancelHandler,eTagHandler,fTagHandler,buttonHandler,helpHandler,erosHandler,horoscopeHandler,slapHandler
-
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.WARNING
-)
-
-logger = logging.getLogger(__name__)
+from Handlers.handlers import startHandler, uTagHandler, cancelHandler, eTagHandler, fTagHandler, buttonHandler, \
+    helpHandler, erosHandler, horoscopeHandler, slapHandler
 
 
 def main():
@@ -18,12 +11,12 @@ def main():
     application.add_handler(CommandHandler('start', startHandler))
     application.add_handler(CommandHandler('utag', uTagHandler))
     application.add_handler(CommandHandler('cancel', cancelHandler))
-    application.add_handler(CommandHandler('etag',eTagHandler))
-    application.add_handler(CommandHandler('ftag',fTagHandler))
-    application.add_handler(CommandHandler('help',helpHandler))
-    application.add_handler(CommandHandler('eros',erosHandler))
-    application.add_handler(CommandHandler('burc',horoscopeHandler))
-    application.add_handler(CommandHandler('slap',slapHandler))
+    application.add_handler(CommandHandler('etag', eTagHandler))
+    application.add_handler(CommandHandler('ftag', fTagHandler))
+    application.add_handler(CommandHandler('help', helpHandler))
+    application.add_handler(CommandHandler('eros', erosHandler))
+    application.add_handler(CommandHandler('burc', horoscopeHandler))
+    application.add_handler(CommandHandler('slap', slapHandler))
     application.add_handler(CallbackQueryHandler(buttonHandler))
     application.run_polling()
 
