@@ -52,13 +52,11 @@ async def perform_tagging(update, context, chatID, userID, userName, args, tagTy
                     await context.bot.send_message(chat_id=chatID, text=message, parse_mode="HTML")
                     success = True
                 except Exception as e:
-                    logger.error(f"Error sending message: {e}")
                     retries += 1
                     wait_time = 2 ** retries
                     await asyncio.sleep(wait_time)
 
             if not success:
-                logger.error("Failed to send message after 3 retries")
                 await send_error_message(context, "Failed to send message after 3 retries")
 
             if i > 0:
@@ -69,6 +67,5 @@ async def perform_tagging(update, context, chatID, userID, userName, args, tagTy
         await context.bot.send_message(chatID, text=finalMessage, parse_mode="HTML")
 
     except Exception as e:
-        logger.error(f"Error in perform_tagging: {e}")
         await context.bot.send_message(chatID, text=f"Etiketleme işlemi sırasında bir hata oluştu: {str(e)}\nLütfen botun yönetici olduğundan ve gerekli izinlere sahip olduğundan emin olun.", parse_mode="HTML")
         await send_error_message(context, e)
