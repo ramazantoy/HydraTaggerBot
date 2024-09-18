@@ -7,6 +7,7 @@ from Horoscope.horoscoping import perform_horoscoping
 from Slap.splaping import perform_slaping
 import asyncio
 from config import DebugId
+from Utils.sudoChecker import is_sudo_user
 
 tagging_status = {}
 
@@ -159,10 +160,15 @@ async def tagHandler(update: Update, context: ContextTypes.DEFAULT_TYPE, tagType
         args_warning = "<b>Lütfen</b> gruba iletmek istediğin bir mesaj yazarak tekrar dene! 📢"
 
         effective_user = await context.bot.get_chat_member(chatID, userID)
+
         if str(effective_user.status) not in ["creator", "administrator"]:
-            await context.bot.send_message(chatID, text=admin_warning, parse_mode="HTML",
+            if is_sudo_user(userID):
+                pass
+            else:
+                await context.bot.send_message(chatID, text=admin_warning, parse_mode="HTML",
                                            reply_to_message_id=update.message.message_id)
-            return
+                return
+
 
         if chatID in tagging_status and not tagging_status[chatID].done():
             await context.bot.send_message(chatID,
@@ -192,7 +198,7 @@ async def cancelHandler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chatID = update.effective_chat.id
         if update.message.chat.type != "private":
             effective_user = await context.bot.get_chat_member(chatID, update.effective_user.id)
-            if str(effective_user.status) in ["creator", "administrator"]:
+            if str(effective_user.status) in ["creator", "administrator"] or is_sudo_user(effective_user.user.id):
                 if chatID in tagging_status and not tagging_status[chatID].done():
                     tagging_status[chatID].cancel()
 
