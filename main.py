@@ -1,7 +1,8 @@
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler
-from config import Token
+
 from Handlers.handlers import startHandler, uTagHandler, cancelHandler, eTagHandler, fTagHandler, buttonHandler, \
-    helpHandler, erosHandler, horoscopeHandler, slapHandler
+    helpHandler, erosHandler, horoscopeHandler
+from config import Token
 
 
 def main():
@@ -16,8 +17,9 @@ def main():
     application.add_handler(CommandHandler('help', helpHandler))
     application.add_handler(CommandHandler('eros', erosHandler))
     application.add_handler(CommandHandler('burc', horoscopeHandler))
-    application.add_handler(CommandHandler('slap', slapHandler))
+    #application.add_handler(CommandHandler('slap', slapHandler))
     application.add_handler(CallbackQueryHandler(buttonHandler))
+
     application.run_polling()
 
 
